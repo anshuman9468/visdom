@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package visdom;
+
+import "google/protobuf/empty.proto";
+
+option java_package = "com.anshuman9468.visdom.proto";
+option go_package = "github.com/anshuman9468/visdom/proto;visdom";
+option csharp_namespace = "Visdom.Proto";
+
+// A simple API for managing Visdom "windows" (example resource).
+// Extend messages and services to match your real server API.
+
+message Window {
+  string id = 1;           // stable identifier (server-assigned)
+  string title = 2;
+  string content = 3;      // could be JSON/stringified payload
+  repeated string tags = 4;
+  int64 created_at_unix = 5; // unix epoch seconds
+}
+
+message CreateWindowRequest {
+  // When empty `id` is sent, server should assign an id.
+  Window window = 1;
+}
+
+message CreateWindowResponse {
+  string id = 1;
+}
+
+message UpdateWindowRequest {
+  string id = 1;
+  // Partial or full window replacement depending on server semantics.
+  Window window = 2;
+}
+
+message UpdateWindowResponse {
+  bool success = 1;
+}
+
+message GetWindowRequest {
+  string id = 1;
+}
+
+message GetWindowResponse {
+  Window window = 1;
+}
+
+message ListWindowsResponse {
+  repeated Window windows = 1;
+}
+
+service Visdom {
+  // Creates a new window and returns its id.
+  rpc CreateWindow(CreateWindowRequest) returns (CreateWindowResponse);
+
+  // Updates an existing window.
+  rpc UpdateWindow(UpdateWindowRequest) returns (UpdateWindowResponse);
+
+  // Retrieves a single window by id.
+  rpc GetWindow(GetWindowRequest) returns (GetWindowResponse);
+
+  // Lists windows. Uses google.protobuf.Empty for a simple no-arg request.
+  rpc ListWindows(google.protobuf.Empty) returns (ListWindowsResponse);
+}
